@@ -34,3 +34,4 @@ mka vendorbootimage
 ```
 fastboot flash vendor_boot out/target/product/MEGA_1/vendor_boot.img
 ```
+соавтор https://4pda.to/forum/index.php?showuser=5517637
