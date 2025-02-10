@@ -13,7 +13,7 @@ Memory  | 8/12 GB RAM
 Shipped Android Version | 13.0 with DOKEOS 4
 Storage | 256 GB
 Battery | Li-Po 8800 mAh, non-removable
-Display | 11.5-inch, 2000х1200 FHD+ 2.4K Resolution; Dynamic 120Hz Refresh Rate
+Display | 11.5-inch,1200х2000 FHD+ 2.4K Resolution; Dynamic 120Hz Refresh Rate
 Camera  | 50.1 MP (Samsung® ISOCELL GW3) and 13 MP (Samsung® ISOCELL 3L6)
 
 ## Device picture
