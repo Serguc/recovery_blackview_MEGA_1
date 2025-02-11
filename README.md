@@ -1,4 +1,4 @@
-/#  Recovery tree of Blackview MEGA 1
+##  Recovery tree of Blackview MEGA 1
 
 It was announced & released on November 2023.
 
@@ -16,22 +16,42 @@ Battery | Li-Po 8800 mAh, non-removable
 Display | 11.5-inch,1200х2000 FHD+ 2.4K Resolution; Dynamic 120Hz Refresh Rate
 Camera  | 50.1 MP (Samsung® ISOCELL GW3) and 13 MP (Samsung® ISOCELL 3L6)
 
-## Device picture
+### Device picture
 
+![Screenshot_20250206-190111](https://github.com/user-attachments/assets/d982ed91-e9f5-4574-afae-c6216ae4349d)
 
 
 ## Features
+Works:
+- [ ] ADB
+- [ ] Trustkernel Decryption
+- [X] Display
+- [ ] Fasbootd
+- [ ] Flashing
+- [ ] MTP
+- [ ] Sideload
+- [ ] USB OTG
+- [ ] SDCard
+- [ ] Touch
+- [ ] Flashlight
+- [ ] Vibrator
 
-# Building
+## Building
 ```bash
 source build/envsetup.sh
 lunch twrp_MEGA_1-eng
 mka vendorbootimage
 ```
 
-## To use it:
+### To use it:
+```
+fastboot flash vendor_boot twrp_vendor_boot.img
+```
 
-```
-fastboot flash vendor_boot out/target/product/MEGA_1/vendor_boot.img
-```
-соавтор https://4pda.to/forum/index.php?showuser=5517637
+### Thanks to
+
+@Serguc
+@MisterZtr
+@lopestom
+
+
