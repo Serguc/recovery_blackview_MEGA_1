@@ -1,234 +1,175 @@
 import /init.recovery.trustkernel.rc
 
-
 on init
     setprop sys.usb.configfs 1
-    setprop sys.usb.controller "musb-hdrc"
-    setprop sys.usb.ffs.aio_compat 0
-
-on fs && property:ro.debuggable=0
-    # distinguish USB shoulde connect or not, i.e. CDP vs SDP
-    write /sys/class/udc/musb-hdrc/device/cmode 2
-    # set charging free due to it wait for USB activation
-    start adbd
-
-on boot
-    exec u:r:update_engine:s0 root root -- /system/bin/mtk_plpath_utils
-
-on init
-    # Create a more standard /dev/block layout for our scripts
-    symlink /dev/block/platform/bootdevice /dev/block/bootdevice
-    mkdir /persist 0700 root root
-    mount ext4 /dev/block/by-name/persist /persist
-    mkdir /persist/OFRP
-    export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
-    setprop sys.usb.configfs 1
-    setprop sys.usb.controller "musb-hdrc"
+    setprop sys.usb.controller "11201000.usb0"
     setprop sys.usb.ffs.aio_compat 1
-    setprop crypto.ready 1
+    export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw:/system/lib64/hw
 
 on fs
-    wait /dev/block/platform/soc/11270000.ufshci
-    symlink /dev/block/platform/soc/11270000.ufshci /dev/block/bootdevice
+    wait /dev/block/platform/soc/112b0000.ufshci
+    symlink /dev/block/platform/soc/112b0000.ufshci /dev/block/bootdevice
+
+    chmod +x /vendor/bin/*
+    chmod +x /vendor/bin/hw/*
+    # */
+
     mkdir /mnt/vendor 0755 system system
     mkdir /mnt/vendor/protect_f 0770 system system
     mkdir /mnt/vendor/protect_s 0770 system system
-    mkdir /mnt/vendor/persist   0755 system system
+    #mkdir /mnt/vendor/persist   0755 system system
     mkdir /mnt/vendor/nvdata    0771 system system
     mkdir /mnt/vendor/nvcfg     0771 system system
     mount ext4 /dev/block/by-name/protect1 /mnt/vendor/protect_f rw wait
     mount ext4 /dev/block/by-name/protect2 /mnt/vendor/protect_s rw wait
-    mount ext4 /dev/block/by-name/persist  /mnt/vendor/persist   rw wait
+    #mount ext4 /dev/block/by-name/persist  /mnt/vendor/persist   rw wait
     mount ext4 /dev/block/by-name/nvdata   /mnt/vendor/nvdata    rw wait
     mount ext4 /dev/block/by-name/nvcfg    /mnt/vendor/nvcfg     rw wait
-    mkdir /mnt/vendor/persist/t6_twrp    0755 system system
+    #mkdir /mnt/vendor/persist/t6_twrp    0755 system system
     mkdir /mnt/vendor/protect_f/tee_twrp 0755 system system
     exec u:r:recovery:s0 system -- /vendor/bin/init_trustkernel_twrp.sh
-    mkdir /mnt/vendor 0755 system system
-    mkdir /mnt/vendor/persist 0700 system system
-    mount ext4 /dev/block/by-name/persist /mnt/vendor/persist
 
-
-# For vibrator
-    write /sys/class/leds/vibrator/trigger "transient"
-    chown system system /sys/class/leds/vibrator/trigger
-    chown system system /sys/class/leds/vibrator/activate
-    chown system system /sys/class/leds/vibrator/brightness
-    chown system system /sys/class/leds/vibrator/duration
-    chown system system /sys/class/leds/vibrator/state
-
-#flashlight
-    chown system system /sys/class/leds/flashlight/trigger
-    chown system system /sys/class/leds/flashlight/brightness
-    chown system system /sys/class/leds/flashlight/max_brightness
-
-    chown system system /sys/class/leds/torch-light0/trigger
-    chown system system /sys/class/leds/torch-light0/brightness
-    chown system system /sys/class/leds/torch-light0/max_brightness
-
-on early-fs
-    # Once metadata has been mounted, we'll need vold to deal with userdata checkpointing
-    start vold
-
-on fs
-    write /proc/bootprof "INIT:fs"
+    #mkdir /data/misc 01771 system misc encryption=Require
+    #mkdir /data/misc
+    #mkdir /data/misc/keystore 0700 keystore keystore
+    
     install_keyring
+    setprop crypto.ready 1 
 
-# mount fstab
-    write /proc/bootprof "INIT:Mount_START"
-    write /sys/kernel/tracing/trace_marker "B|1|Mount"
-    mount_all --early
-    exec /system/bin/tune2fs -O has_journal -u 10010 -r 4096 /dev/block/by-name/userdata
-    write /sys/kernel/tracing/trace_marker "E"
-    write /proc/bootprof "INIT:Mount_END"
+# We need vold early for metadata encryption
+#on early-fs
+#    start vold
 
 on post-fs
-    start boot-mtk
+    #chown system system /mnt/vendor/protect_f
+    #chmod 0770 /mnt/vendor/protect_f
+
+    #chown system system /mnt/vendor/protect_s
+    #chmod 0770 /mnt/vendor/protect_s
+
+    #chown system system /mnt/vendor/nvcfg
+    #chmod 0771 /mnt/vendor/nvcfg
+    #restorecon_recursive /mnt/vendor/nvcfg
+
+    #chown root system /mnt/vendor/nvdata
+    #chmod 0771 /mnt/vendor/nvdata
+    #mkdir /mnt/vendor/nvdata/media 0771 media audio
+    #restorecon_recursive /mnt/vendor/nvdata
+
+    #chown system system /proc/bootprof
+    
+    #start boot-hal-1-2
+
+    # Support A/B feature for EMMC and UFS boot region
+    symlink /dev/block/sda /dev/block/mmcblk0boot0
+    symlink /dev/block/sdb /dev/block/mmcblk0boot1
+    symlink /dev/block/mmcblk0boot0 /dev/block/platform/bootdevice/by-name/preloader_a
+    symlink /dev/block/mmcblk0boot1 /dev/block/platform/bootdevice/by-name/preloader_b
+
+    # Support A/B feature for combo emmc and ufs OTA update
+    symlink /dev/block/platform/bootdevice/by-name/preloader_a /dev/block/platform/bootdevice/by-name/preloader_emmc_a
+    symlink /dev/block/platform/bootdevice/by-name/preloader_b /dev/block/platform/bootdevice/by-name/preloader_emmc_b
+    symlink /dev/block/platform/bootdevice/by-name/preloader_a /dev/block/platform/bootdevice/by-name/preloader_ufs_a
+    symlink /dev/block/platform/bootdevice/by-name/preloader_b /dev/block/platform/bootdevice/by-name/preloader_ufs_b
+    symlink /dev/block/platform/bootdevice/by-name/preloader_b /dev/block/by-name/preloader_ufs_b
+
+    #mkdir /data/misc 01771 system misc encryption=Require
+    #mkdir /data/misc/keystore 0700 keystore keystore
+    # work around b/183668221
+    #restorecon /data/misc /data/misc/keystore
+
+    # Boot level 30
+    # odsign signing keys have MAX_BOOT_LEVEL=30
+    # This is currently the earliest boot level, but we start at 30
+    # to leave room for earlier levels.
+    setprop keystore.boot_level 30
+
+    # Now that /data is mounted and we have created /data/misc/keystore,
+    # we can tell keystore to stop allowing use of early-boot keys,
+    # and access its database for the first time to support creation and
+    # use of MAX_BOOT_LEVEL keys.
+    #exec - system system -- /system/bin/vdc keymaster earlyBootEnded
+
+on boot
     exec u:r:update_engine:s0 root root -- /system/bin/mtk_plpath_utils
     start mtk.plpath.utils.link
+    start health-hal-2-1
+    start system_suspend
 
-    on property:persist.vendor.mtk.pl_lnk=1
+on property:persist.vendor.mtk.pl_lnk=1
     symlink /dev/block/mapper/pl_a /dev/block/by-name/preloader_raw_a
     symlink /dev/block/mapper/pl_b /dev/block/by-name/preloader_raw_b
     symlink /dev/block/mapper/pl_a /dev/block/platform/bootdevice/by-name/preloader_raw_a
     symlink /dev/block/mapper/pl_b /dev/block/platform/bootdevice/by-name/preloader_raw_b
 
-# FSTAB_RAW2(lk2,bootloader2) of fstab.in.emmc, but without bootloader2 mount point
-    symlink /dev/block/by-name/lk1 /dev/block/by-name/bootloader1
-    symlink /dev/block/by-name/lk2 /dev/block/by-name/bootloader2
-
-# Fix ro.vendor.mtk_ufs_support remove issue of recovery mode
-on property:vendor.mtk.boot0_linka=1
-    symlink /dev/block/sda /dev/block/mmcblk0boot0
-
-on property:vendor.mtk.boot0_linkb=1
-    symlink /dev/block/sdb /dev/block/mmcblk0boot0
-
-on property:vendor.mtk.boot0_linkc=1
-    symlink /dev/block/sdc /dev/block/mmcblk0boot0
-
-on property:vendor.mtk.boot1_linka=1
-    symlink /dev/block/sda /dev/block/mmcblk0boot1
-
-on property:vendor.mtk.boot1_linkb=1
-    symlink /dev/block/sdb /dev/block/mmcblk0boot1
-
-on property:vendor.mtk.boot1_linkc=1
-    symlink /dev/block/sdc /dev/block/mmcblk0boot1
-
 service mtk.plpath.utils.link /system/bin/mtk_plpath_utils
     class main
     user root
     group root system
-    disabled
     oneshot
+    disabled
     seclabel u:r:recovery:s0
 
-service keymint-beanpod /vendor/bin/hw/android.hardware.security.keymint@1.0-service.beanpod
-    interface android.hardware.keymaster@3.0::IKeymasterDevice default
-    interface android.hardware.keymaster@4.0::IKeymasterDevice default
-    interface android.hardware.keymaster@4.1::IKeymasterDevice default
+service system_suspend /system/bin/hw/android.system.suspend-service
+    class early_hal
+    interface aidl android.system.suspend.ISystemSuspend/default
     user root
-    group root drmrpc
+    group root wakelock
+    capabilities BLOCK_SUSPEND
     disabled
-    oneshot
     seclabel u:r:recovery:s0
 
-service gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service
+service vendor.gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service
     interface android.hardware.gatekeeper@1.0::IGatekeeper default
+    class hal
     user root
     group root
     disabled
     seclabel u:r:recovery:s0
 
- service vendor.keymint-trustkernel /vendor/bin/hw/android.hardware.security.keymint-service.trustkernel
-    class early_hal
-    interface aidl android.hardware.security.keymint.IKeyMintDevice/default
-    interface aidl android.hardware.security.keymint.IRemotelyProvisionedComponent/default
-    interface aidl android.hardware.security.sharedsecret.ISharedSecret/default
-    interface aidl android.hardware.security.secureclock.ISecureClock/default
-    user system
-    group system
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/system/lib64:/sbin
-    disabled
-    oneshot
-    seclabel u:r:recovery:s0
-
-service keymaster_attestation-1-1 /vendor/bin/hw/vendor.mediatek.hardware.keymaster_attestation@1.1-service
-    interface vendor.mediatek.hardware.keymaster_attestation@1.0::IKeymasterDevice default
-    interface vendor.mediatek.hardware.keymaster_attestation@1.1::IKeymasterDevice default
-    class hal
-    user system
-    group system
-    disabled
-    seclabel u:r:recovery:s0
-
-service vendor.vibrator-default /vendor/bin/hw/android.hardware.vibrator-service.mediatek
-    class hal
-    user root
-    group root system
-    seclabel u:r:recovery:s0
-
-service vendor.boot-hal-1-2 /vendor/bin/hw/android.hardware.boot@1.2-service
-    interface android.hardware.boot@1.0::IBootControl default
-    interface android.hardware.boot@1.1::IBootControl default
-    interface android.hardware.boot@1.2::IBootControl default
+service vendor.keymint-trustkernel /vendor/bin/hw/android.hardware.security.keymint-service.trustkernel
     class early_hal
     user root
     group root
-    oneshot
     disabled
     seclabel u:r:recovery:s0
 
-service mountfix /sbin/sh /system/bin/mount.sh
-    user root
-    group root
-    oneshot
-    disabled
-    seclabel u:r:recovery:s0
+#service keystore2 /system/bin/keystore2 /data/misc/keystore
+#    #class early_hal
+#    user root
+#    group root readproc
+#    #task_profiles ProcessCapacityHigh
+#    seclabel u:r:recovery:s0
 
-on property:sys.usb.ffs.ready=1
-    start mountfix
+#on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
+#    install_keyring
 
-on property:hwservicemanager.ready=true
-    start teed
-    start gatekeeper-1-0
-    start keymint-beanpod
-    start keymaster
+on property:crypto.ready=1
+    start vendor.keymint
 
 on property:vendor.sys.listener.registered=true
-    start teed
-    start gatekeeper-1-0
-    start keymint-beanpod
-    start keymaster
+    #start teed
+    start vendor.gatekeeper
+    start vendor.keymint
+   
+on property:hwservicemanager.ready=true
+    #start teed
+    start vendor.gatekeeper
+    start vendor.keymint
 
 on property:ro.crypto.state=unsupported
     stop teed
-    stop keymint-beanpod
-    stop gatekeeper-1-0
-    stop keymaster-4-1
+    stop vendor.gatekeeper
+    stop vendor.keymint
 
 on property:ro.crypto.state=unencrypted
     stop teed
-    stop keymint-beanpod
-    stop gatekeeper-1-0
-    stop keymaster
+    stop vendor.gatekeeper
+    stop vendor.keymint
 
-on property:twrp.all.users.decrypted=true
+#on property:twrp.all.users.decrypted=true && property:twrp.decrypt.done=true
+on property:twrp.decrypt.done=true
+    #setprop crypto.ready 0
     stop teed
-    stop keymint-beanpod
-    stop gatekeeper-1-0
-    stop keymaster
-
- on property:crypto.ready=0
-    stop teed
-    stop vendor.gatekeeper-1-0
-    stop vendor.keymint-trustkernel
-    stop keymaster_attestation-1-1
-
-on boot
-    start health-hal-2-1
-    start vendor.vibrator-default
-    setprop sys.usb.config adb
-
-
+    stop vendor.gatekeeper
+    stop vendor.keymint
