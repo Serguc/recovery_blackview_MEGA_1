@@ -24,12 +24,12 @@ Camera  | 50.1 MP (Samsung® ISOCELL GW3) and 13 MP (Samsung® ISOCELL 3L6)
 
 # Building
 Works:
-- [ ] ADB
+- [X] ADB
 - [ ] Trustkernel Decryption
 - [X] Display
 - [ ] Fasbootd
 - [ ] Flashing
-- [ ] MTP
+- [X] MTP
 - [ ] Sideload
 - [ ] USB OTG
 - [ ] SDCard
