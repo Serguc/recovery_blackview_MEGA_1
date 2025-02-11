@@ -36,9 +36,9 @@ $(call inherit-product, vendor/twrp/config/common.mk)
 ## Device identifier. This must come after all inclusions
 PRODUCT_DEVICE := $(PRODUCT_RELEASE_NAME)
 PRODUCT_NAME := twrp_$(PRODUCT_RELEASE_NAME)
-PRODUCT_BRAND := blackview
+PRODUCT_BRAND := Blackview
 PRODUCT_MODEL := MEGA_1
-PRODUCT_MANUFACTURER := blackview
+PRODUCT_MANUFACTURER := Blackview
 
 
 PRODUCT_BUILD_PROP_OVERRIDES += \
