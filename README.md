@@ -9,7 +9,7 @@ Basic   | Spec Sheet
 SoC     | Mediatek Helio G99 (MT6789) (6nm)
 CPU     | Octa-core (2x2.2 GHz Cortex-A76 & 6x2.0 GHz Cortex-A55)
 GPU     | Mali-G57 MC2
-Memory  | 8/12 GB RAM LPDDR4X
+Memory  | 8/12 GB RAM LPDDR4X + USF2.1
 Shipped Android Version | 13.0 with DOKEOS 4
 Storage | 256 GB
 Battery | Li-Po 8800 mAh, non-removable
