@@ -63,10 +63,10 @@ AB_OTA_POSTINSTALL_CONFIG += \
     POSTINSTALL_OPTIONAL_system=true
 
 # VNDK
-PRODUCT_TARGET_VNDK_VERSION := 32
+PRODUCT_TARGET_VNDK_VERSION := 31
 
 # API
-PRODUCT_SHIPPING_API_LEVEL := 32
+PRODUCT_SHIPPING_API_LEVEL := 31
 
 PRODUCT_PACKAGES_DEBUG += \
     update_engine_client
@@ -136,9 +136,9 @@ RECOVERY_LIBRARY_SOURCE_FILES += $(TARGET_OUT_VENDOR_SHARED_LIBRARIES)/android.h
 
 # Vendor ramdisk
 PRODUCT_COPY_FILES += \
-     device/blackview/MEGA_1/fstab.mt6789:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.mt6789
+     device/Blackview/MEGA_1/fstab.mt6789:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.mt6789
 PRODUCT_COPY_FILES += \
-     device/blackview/MEGA_1/fstab.emmc:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.emmc
+     device/Blackview/MEGA_1/fstab.emmc:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.emmc
 
 # OEM otacerts
 PRODUCT_EXTRA_RECOVERY_KEYS += \
