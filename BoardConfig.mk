@@ -15,7 +15,7 @@
 #
 
 
-DEVICE_PATH := device/blackview/MEGA_1
+DEVICE_PATH := device/Blackview/MEGA_1
 
 # For building with minimal manifest
 ALLOW_MISSING_DEPENDENCIES := true
