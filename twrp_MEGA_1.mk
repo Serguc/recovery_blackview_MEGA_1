@@ -21,7 +21,7 @@
 PRODUCT_RELEASE_NAME := MEGA_1
 
 # Device path for OEM device tree
-DEVICE_PATH := device/blackview/$(PRODUCT_RELEASE_NAME)
+DEVICE_PATH := device/Blackview/$(PRODUCT_RELEASE_NAME)
 
 # Inherit from hardware-specific part of the product configuration
 $(call inherit-product, $(DEVICE_PATH)/device.mk)
